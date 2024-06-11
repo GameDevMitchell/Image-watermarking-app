@@ -13,37 +13,51 @@ class WatermarkApp:
         self.root.title("Watermarking App")
 
         self.frame = Frame(root, width=800, height=800, bg=BACKGROUND_COLOUR)
-        self.frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=8)
+        self.frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=9)
 
         frame = Frame(root)
         frame.grid(padx=20, pady=20)
 
         self.canvas = Canvas(self.frame, bg="white")
-        self.canvas.grid(row=0, column=0, sticky="nsew", rowspan=8)
+        self.canvas.grid(row=0, column=0, sticky="nsew", rowspan=9)
 
+        # Buttons
         # upload image button
         self.upload_button = ttk.Button(
             root, text="Upload Image", command=self.upload_image
         )
-        self.upload_button.grid(row=1, column=0, pady=10)
+        self.upload_button.grid(row=9, column=0, pady=10)
 
         # add text button
         self.add_text_button = ttk.Button(root, text="Add watermark", command=None)
-        self.add_text_button.grid(row=2, column=1, pady=10)
+        self.add_text_button.grid(row=11, column=1, pady=20, sticky="w")
+
+        # Reset button
+        self.reset_button = ttk.Button(root, text="Reset", command=None)
+        self.reset_button.grid(row=11, column=2, pady=20, padx=(0, 30), sticky="e")
 
         # text label
-        self.text_label = ttk.Label(root, text="Text", background=BACKGROUND_COLOUR)
-        self.text_label.grid(row=0, column=1, pady=10)
+        self.text_label = ttk.Label(
+            root,
+            text="Text",
+            background=BACKGROUND_COLOUR,
+            font=("calibri", 18, "underline"),
+        )
+        self.text_label.grid(row=0, column=1, sticky="nsew", pady=(20, 10))
 
         # watermark enrty box
-        self.text_box = ttk.Entry(root, font=("calibri", 10))
-        self.text_box.grid(row=1, column=1, pady=10, columnspan=2)
+        self.text_box = ttk.Entry(root, font=("calibri", 10), width=33)
+        self.text_box.grid(row=1, column=1, columnspan=2, sticky="w")
 
+        # Placement section
         # Placement label
         self.placement_label = ttk.Label(
-            root, text="Placement", background=BACKGROUND_COLOUR
+            root,
+            text="Placement",
+            background=BACKGROUND_COLOUR,
+            font=("calibri", 18, "underline"),
         )
-        self.placement_label.grid(row=2, column=1, pady=10)
+        self.placement_label.grid(row=2, column=1, sticky="nsew", pady=(20, 10))
 
         # placement configuration
         self.place_label = ttk.Label(
@@ -51,27 +65,118 @@ class WatermarkApp:
         )
         options = ["Bottom-right", "Bottom-left", "Top-left", "Top-right", "Centre"]
         self.place_dropbox = ttk.Combobox(root, values=options)
-        self.place_label.grid(row=3, column=1, pady=10)
+        self.place_dropbox.set("Choose placement")
+        self.place_label.grid(row=3, column=1, pady=10, sticky="nsew")
         self.place_dropbox.grid(row=3, column=2, padx=10)
 
         # delta x configuration
-        self.delta_x_label = ttk.Label(root, text="Delta X (px)", background=BACKGROUND_COLOUR)
-        self.delta_x_spinbox = ttk.Spinbox(root, from_=0, to=10, background=BACKGROUND_COLOUR)
-        self.delta_x_label.grid(row=4, column=1, pady=10)
+        self.delta_x_label = ttk.Label(
+            root, text="Delta X (px)", background=BACKGROUND_COLOUR
+        )
+        self.delta_x_spinbox = ttk.Spinbox(
+            root, from_=0, to=10, background=BACKGROUND_COLOUR
+        )
+        self.delta_x_label.grid(row=4, column=1, pady=10, sticky="nsew")
         self.delta_x_spinbox.grid(row=4, column=2, padx=10)
-    
+
         # delta y configuration
-        self.delta_y_label = ttk.Label(root, text="Delta Y (px)", background=BACKGROUND_COLOUR)
-        self.delta_y_spinbox = ttk.Spinbox(root, from_=0, to=10, background=BACKGROUND_COLOUR)
-        self.delta_y_label.grid(row=5, column=1, pady=10)
+        self.delta_y_label = ttk.Label(
+            root, text="Delta Y (px)", background=BACKGROUND_COLOUR
+        )
+        self.delta_y_spinbox = ttk.Spinbox(
+            root, from_=0, to=10, background=BACKGROUND_COLOUR
+        )
+        self.delta_y_label.grid(row=5, column=1, pady=10, sticky="nsew")
         self.delta_y_spinbox.grid(row=5, column=2, padx=10)
 
-        # rotation configuration 
-        self.rotation_label = ttk.Label(root, text="Rotation (°)", background=BACKGROUND_COLOUR)
-        self.rotation_spinbox = ttk.Spinbox(root, from_=0, to=360, background=BACKGROUND_COLOUR)
-        self.rotation_label.grid(row=6, column=1, pady=10)
+        # rotation configuration
+        self.rotation_label = ttk.Label(
+            root, text="Rotation (°)", background=BACKGROUND_COLOUR
+        )
+        self.rotation_spinbox = ttk.Spinbox(
+            root, from_=0, to=360, background=BACKGROUND_COLOUR
+        )
+        self.rotation_spinbox.set("0")
+        self.rotation_label.grid(row=6, column=1, pady=10, sticky="nsew")
         self.rotation_spinbox.grid(row=6, column=2, padx=10)
 
+        # font section
+        # font label
+        self.font_label = ttk.Label(
+            root,
+            text="Font",
+            background=BACKGROUND_COLOUR,
+            font=("calibri", 18, "underline"),
+        )
+        self.font_label.grid(row=7, column=1, pady=10, sticky="nsew")
+
+        # font type configuration
+        self.font_type_label = ttk.Label(
+            root, text="Type", background=BACKGROUND_COLOUR
+        )
+        fonts = [
+            "Arial",
+            "Helvetica",
+            "Times New Roman",
+            "Courier New",
+            "Verdana",
+            "Tahoma",
+            "Georgia",
+            "Palatino",
+            "Garamond",
+            "Bookman",
+            "Comic Sans MS",
+            "Trebuchet MS",
+            "Impact",
+            "Lucida Sans",
+            "Monaco",
+            "Consolas",
+            "Calibri",
+            "Cambria",
+            "Candara",
+            "Optima",
+            "Century Gothic",
+            "Franklin Gothic",
+            "Gill Sans",
+            "Futura",
+            "Baskerville",
+        ]
+        self.font_dropbox = ttk.Combobox(root, values=fonts)
+        self.font_dropbox.set("Choose font")
+        self.font_type_label.grid(row=8, column=1, pady=10, sticky="nsew")
+        self.font_dropbox.grid(row=8, column=2, padx=10)
+
+        # font colour configuartion
+        self.font_colour_label = ttk.Label(
+            root, text="Type", background=BACKGROUND_COLOUR
+        )
+        colours = [
+            "Red",
+            "Green",
+            "Blue",
+            "Yellow",
+            "Purple",
+            "Orange",
+            "Cyan",
+            "Magenta",
+            "White",
+            "Black",
+        ]
+        self.font_colour_dropbox = ttk.Combobox(root, values=colours)
+        self.font_colour_dropbox.set("Choose colour")
+        self.font_colour_label.grid(row=9, column=1, pady=10, sticky="nsew")
+        self.font_colour_dropbox.grid(row=9, column=2, padx=10)
+
+        # transparency configuration
+        self.transparency_label = ttk.Label(
+            root, text="Transparency", background=BACKGROUND_COLOUR
+        )
+        self.transparency_spinbox = ttk.Spinbox(
+            root, from_=0, to=100, background=BACKGROUND_COLOUR
+        )
+        self.transparency_spinbox.set("90")
+        self.transparency_label.grid(row=10, column=1, pady=10, sticky="nsew")
+        self.transparency_spinbox.grid(row=10, column=2, padx=10)
 
         self.image_on_canvas = None
 
@@ -112,6 +217,6 @@ class WatermarkApp:
 
 root = Tk()
 root.config(bg=BACKGROUND_COLOUR)
-root.geometry("800x500")
+# root.geometry("800x500")
 app = WatermarkApp(root)
 root.mainloop()
