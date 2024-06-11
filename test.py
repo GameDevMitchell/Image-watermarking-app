@@ -61,7 +61,7 @@ class WatermarkApp:
 
         # placement configuration
         self.place_label = ttk.Label(
-            root, text="Placement", background=BACKGROUND_COLOUR
+            root, text="Placement", background=BACKGROUND_COLOUR,
         )
         options = ["Bottom-right", "Bottom-left", "Top-left", "Top-right", "Centre"]
         self.place_dropbox = ttk.Combobox(root, values=options)
@@ -174,7 +174,7 @@ class WatermarkApp:
         self.transparency_spinbox = ttk.Spinbox(
             root, from_=0, to=100, background=BACKGROUND_COLOUR
         )
-        self.transparency_spinbox.set("90")
+        self.transparency_spinbox.set("50")
         self.transparency_label.grid(row=10, column=1, pady=10, sticky="nsew")
         self.transparency_spinbox.grid(row=10, column=2, padx=10)
 
@@ -217,6 +217,7 @@ class WatermarkApp:
 
 root = Tk()
 root.config(bg=BACKGROUND_COLOUR)
-# root.geometry("800x500")
+# root.geometry("950x500")
+root.resizable(True, True)
 app = WatermarkApp(root)
 root.mainloop()
