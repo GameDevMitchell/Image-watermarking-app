@@ -61,7 +61,9 @@ class WatermarkApp:
 
         # placement configuration
         self.place_label = ttk.Label(
-            root, text="Placement", background=BACKGROUND_COLOUR,
+            root,
+            text="Placement",
+            background=BACKGROUND_COLOUR,
         )
         options = ["Bottom-right", "Bottom-left", "Top-left", "Top-right", "Centre"]
         self.place_dropbox = ttk.Combobox(root, values=options)
@@ -217,7 +219,7 @@ class WatermarkApp:
 
 root = Tk()
 root.config(bg=BACKGROUND_COLOUR)
-# root.geometry("950x500")
+root.geometry("900x600")
 root.resizable(True, True)
 app = WatermarkApp(root)
 root.mainloop()
