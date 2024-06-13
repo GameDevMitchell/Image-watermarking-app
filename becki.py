@@ -1,5 +1,6 @@
 import os
-from tkinter import Tk, Canvas, Frame, Button, filedialog, ttk, END, messagebox
+import shutil
+from tkinter import Tk, Canvas, Frame, filedialog, ttk, END, messagebox
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 BACKGROUND_COLOUR = "#EADBC8"
@@ -9,6 +10,7 @@ class WatermarkApp:
         self.root = root
         self.root.title("Watermarking App")
         self.final_image = None
+        self.temp_image_path = None
 
         self.frame = Frame(root, width=800, height=800, bg=BACKGROUND_COLOUR)
         self.frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=9)
@@ -166,15 +168,12 @@ class WatermarkApp:
         text_position = (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
         edited_image.text(text_position, text, fill="blue", font=text_font)
 
-        # Save the final image
-        save_path = os.path.join(os.getcwd(), "temp_image.png")
-        image.save(save_path)
+        # Save the watermarked image temporarily
+        self.temp_image_path = os.path.join(os.getcwd(), "temp_image.png")
+        image.save(self.temp_image_path)
 
         # Display the updated image on the canvas
-        self.display_temp_image(save_path)
-
-        # Schedule deletion of the temp file after a delay
-        self.canvas.after(2000, lambda: os.remove(save_path))
+        self.display_temp_image(self.temp_image_path)
 
         self.text_box.delete(0, END)
         self.text_box.insert(0, "Generating watermark...")
@@ -202,13 +201,23 @@ class WatermarkApp:
     def reset(self):
         self.canvas.delete("all")
         self.final_image = None
+        if self.temp_image_path and os.path.exists(self.temp_image_path):
+            os.remove(self.temp_image_path)
+        self.temp_image_path = None
 
     def save_image(self):
-        if self.final_image:
-            save_path = os.path.join(os.getcwd(), "final_image.png")
-            self.final_image.save(save_path)
-            messagebox.showinfo("Image Saved", f"The image has been saved at:\n{save_path}")
-            os.startfile(save_path)
+        if self.temp_image_path:
+            save_path = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+            )
+            if save_path:
+                shutil.copyfile(self.temp_image_path, save_path)
+                os.remove(self.temp_image_path)  # Remove temp image after saving
+                messagebox.showinfo("Image Saved", f"The image has been saved at:\n{save_path}")
+                os.startfile(save_path)
+        else:
+            messagebox.showwarning("No Watermark", "Please add a watermark before saving the image.")
 
     def run(self):
         self.root.mainloop()

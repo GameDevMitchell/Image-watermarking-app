@@ -20,7 +20,7 @@ app.config(padx=10, pady=10, bg=BACKGROUND_COLOUR)
 
 def add_text():
     """add texts to the image provided"""
-    image = Image.open("images/tom6.png")
+    image = Image.open("images/tom.png")
     text_font = ImageFont.truetype("calibri.ttf", 40)
 
     text = text_box.get()

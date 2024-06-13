@@ -1,6 +1,7 @@
 from tkinter import Tk, Canvas, Frame, Button, filedialog, ttk
 from tkinter import *
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageFont, ImageDraw
+import os
 
 
 # colour schemes
@@ -29,7 +30,7 @@ class WatermarkApp:
         self.upload_button.grid(row=9, column=0, pady=10)
 
         # add text button
-        self.add_text_button = ttk.Button(root, text="Add watermark", command=None)
+        self.add_text_button = ttk.Button(root, text="Add watermark", command=self.add_text)
         self.add_text_button.grid(row=11, column=1, pady=20, sticky="w")
 
         # Reset button
@@ -197,6 +198,7 @@ class WatermarkApp:
 
     def display_image(self, file_path):
         img = Image.open(file_path)
+        self.imgage = img
         img_width, img_height = img.size
 
         # Calculate the new size preserving the aspect ratio
@@ -216,6 +218,65 @@ class WatermarkApp:
 
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
 
+    def add_text(self):
+
+        # if os.path.exists("new_image.png"):
+        #     os.remove("new_image.png")
+
+        image = self.imgage
+        img_width, img_height = image.size
+
+        font_name = self.font_dropbox.get().lower() + ".ttf"
+        font_path = os.path.join("fonts", font_name)
+
+        try:
+            # Calculate text size as a percentage of the image height
+            text_size = int(img_height * 0.05)  # e.g., 5% of the image height
+            text_font = ImageFont.truetype(font_path, text_size)
+        except OSError:
+            print(f"Font file {font_path} not found.")
+            return
+
+        text = self.text_box.get()
+        edited_image = ImageDraw.Draw(image)
+
+        # Calculate position based on the image size
+        text_position = (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
+
+        edited_image.text(text_position, text, fill="blue", font=text_font)
+
+        save_path = os.path.join(os.getcwd(), "new_image.png")
+        image.save(save_path)
+
+        self.canvas.after(2000, lambda: os.remove(save_path))
+        self.text_box.delete(0, END)
+        self.text_box.insert(0, "Generating watermark...")
+
+        self.canvas.after(2000, self.preview)
+
+    def preview(self):
+        # self.canvas.delete("all")
+        img = Image.open("new_image.png")
+        self.imgage = img
+        img_width, img_height = img.size
+
+        # Calculate the new size preserving the aspect ratio
+        frame_width = self.frame.winfo_width()
+        frame_height = self.frame.winfo_height()
+        ratio = min(frame_width / img_width, frame_height / img_height)
+        new_width = int(img_width * ratio)
+        new_height = int(img_height * ratio)
+
+        resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+        self.image_tk = ImageTk.PhotoImage(resized_img)
+
+        self.canvas.delete("all")
+        self.image_on_canvas = self.canvas.create_image(
+            frame_width // 2, frame_height // 2, anchor=CENTER, image=self.image_tk
+        )
+
+        self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+        self.text_box.delete(0, END)
 
 root = Tk()
 root.config(bg=BACKGROUND_COLOUR)
