@@ -1,5 +1,6 @@
 import os
-from tkinter import Tk, Canvas, Frame, Button, filedialog, ttk, END, messagebox
+import shutil
+from tkinter import Tk, Canvas, Frame, filedialog, ttk, END, messagebox
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 BACKGROUND_COLOUR = "#EADBC8"
@@ -9,6 +10,7 @@ class WatermarkApp:
         self.root = root
         self.root.title("Watermarking App")
         self.final_image = None
+        self.temp_image_path = None
 
         self.frame = Frame(root, width=800, height=800, bg=BACKGROUND_COLOUR)
         self.frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=9)
@@ -31,7 +33,7 @@ class WatermarkApp:
         self.reset_button.grid(row=11, column=2, pady=20, padx=(0, 30), sticky="e")
 
         self.save_button = ttk.Button(root, text="Save Image", command=self.save_image)
-        self.save_button.grid(row=11, column=2, pady=20, padx=(0, 30), sticky="e")
+        self.save_button.grid(row=11, column=3, pady=20, padx=(0, 30), sticky="e")
 
         self.text_label = ttk.Label(
             root,
@@ -105,6 +107,11 @@ class WatermarkApp:
         self.transparency_spinbox.set("50")
         self.transparency_spinbox.grid(row=10, column=2, padx=10)
 
+        # Position dropdown
+        self.position_dropbox = ttk.Combobox(root, values=["Top Left", "Top Right", "Bottom Left", "Bottom Right", "Center"])
+        self.position_dropbox.set("Choose position")
+        self.position_dropbox.grid(row=10, column=1, padx=10)
+
         self.image_on_canvas = None
 
         self.frame.grid_rowconfigure(0, weight=1)
@@ -162,22 +169,54 @@ class WatermarkApp:
         text = self.text_box.get()
         edited_image = ImageDraw.Draw(image)
 
-        # Calculate position based on the image size
-        text_position = (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
-        edited_image.text(text_position, text, fill="blue", font=text_font)
+        # Determine text position based on the selected position
+        position = self.position_dropbox.get()
+        text_position = self.get_text_position(position, img_width, img_height, text, text_font, edited_image)
 
-        # Save the final image
-        save_path = os.path.join(os.getcwd(), "temp_image.png")
-        image.save(save_path)
+        # Save the watermarked image temporarily
+        self.temp_image_path = os.path.join(os.getcwd(), "temp_image.png")
+        image.save(self.temp_image_path)
 
         # Display the updated image on the canvas
-        self.display_temp_image(save_path)
-
-        # Schedule deletion of the temp file after a delay
-        self.canvas.after(2000, lambda: os.remove(save_path))
+        self.display_temp_image(self.temp_image_path)
 
         self.text_box.delete(0, END)
         self.text_box.insert(0, "Generating watermark...")
+
+    def get_text_position(self, position, img_width, img_height, text, text_font, edited_image):
+        try:
+            font_size = int(img_height * 0.05)  # Calculate font size based on image height
+            font = ImageFont.truetype(text_font, size=font_size)
+        except OSError:
+            print(f"Font file {text_font} not found or unable to load.")
+            return (int(img_width * 0.05), int(img_height * 0.05))  # Default to top left if font loading fails
+
+        # Get text size
+        text_width, text_height = font.getsize(text)
+
+        # Calculate text position based on selected position
+        if position == "Top Left":
+            text_x = int(img_width * 0.05)  # 5% from the left
+            text_y = int(img_height * 0.05)  # 5% from the top
+        elif position == "Top Right":
+            text_x = int(img_width * 0.95) - text_width  # 5% from the right
+            text_y = int(img_height * 0.05)  # 5% from the top
+        elif position == "Bottom Left":
+            text_x = int(img_width * 0.05)  # 5% from the left
+            text_y = int(img_height * 0.95) - text_height  # 5% from the bottom
+        elif position == "Bottom Right":
+            text_x = int(img_width * 0.95) - text_width  # 5% from the right
+            text_y = int(img_height * 0.95) - text_height  # 5% from the bottom
+        elif position == "Center":
+            text_x = (img_width - text_width) // 2  # Centered horizontally
+            text_y = (img_height - text_height) // 2  # Centered vertically
+        else:
+            # Default to Top Left if position is not recognized
+            text_x = int(img_width * 0.05)
+            text_y = int(img_height * 0.05)
+
+        return (text_x, text_y)
+
 
     def display_temp_image(self, file_path):
         img = Image.open(file_path)
@@ -202,13 +241,23 @@ class WatermarkApp:
     def reset(self):
         self.canvas.delete("all")
         self.final_image = None
+        if self.temp_image_path and os.path.exists(self.temp_image_path):
+            os.remove(self.temp_image_path)
+        self.temp_image_path = None
 
     def save_image(self):
-        if self.final_image:
-            save_path = os.path.join(os.getcwd(), "final_image.png")
-            self.final_image.save(save_path)
-            messagebox.showinfo("Image Saved", f"The image has been saved at:\n{save_path}")
-            os.startfile(save_path)
+        if self.temp_image_path:
+            save_path = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+            )
+            if save_path:
+                shutil.copyfile(self.temp_image_path, save_path)
+                os.remove(self.temp_image_path)  # Remove temp image after saving
+                messagebox.showinfo("Image Saved", f"The image has been saved at:\n{save_path}")
+                os.startfile(save_path)
+        else:
+            messagebox.showwarning("No Watermark", "Please add a watermark before saving the image.")
 
     def run(self):
         self.root.mainloop()
