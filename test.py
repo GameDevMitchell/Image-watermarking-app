@@ -278,6 +278,9 @@ class WatermarkApp:
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
         self.text_box.delete(0, END)
 
+    def update_placement_spinboxes(self, *args):
+        pass
+
 root = Tk()
 root.config(bg=BACKGROUND_COLOUR)
 root.geometry("900x600")

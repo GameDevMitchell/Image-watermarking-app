@@ -165,7 +165,7 @@ class WatermarkApp:
         edited_image = ImageDraw.Draw(image)
 
         # Calculate position based on the image size
-        text_position = (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
+        text_position = (int(img_width * 0.9), int(img_height * 0.05))  # e.g., 10% from the left, 90% from the top
         edited_image.text(text_position, text, fill="blue", font=text_font)
 
         # Save the watermarked image temporarily
