@@ -30,6 +30,11 @@ This Python application allows users to add text watermarks to images. It provid
 - **Add Watermark**: Enter text in the "Text" field, choose placement and other options, then click "Add watermark".
 - **Preview**: The preview of the watermarked image will appear in the application window.
   ![preview1](https://github.com/GameDevMitchell/Image-watermarking-app/assets/146736445/def99739-7f00-449d-a56b-e1b05b8b7a73)
+
+
+
+
+  
   ![preview2](https://github.com/GameDevMitchell/Image-watermarking-app/assets/146736445/e8b37dc8-65a4-4379-90c8-4263d53b7bad)
 
 
@@ -40,6 +45,8 @@ This Python application allows users to add text watermarks to images. It provid
   A confirmation message will then display, indicating that the image has been successfully saved. Then the new image pops up.
 
   ![preview3](https://github.com/GameDevMitchell/Image-watermarking-app/assets/146736445/167f4f42-3301-4d2d-a434-18153146b656)
+
+
 
   ![preview4](https://github.com/GameDevMitchell/Image-watermarking-app/assets/146736445/d8c8c0e6-4764-4ae6-b839-25313a43580c)
 
