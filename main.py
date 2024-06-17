@@ -1,6 +1,6 @@
 import os
 import shutil
-from tkinter import Tk, Canvas, Frame, filedialog, ttk, END, messagebox, CENTER, ALL
+from tkinter import Tk, Canvas, Frame, filedialog, ttk, END, messagebox, CENTER, StringVar
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 
@@ -80,17 +80,23 @@ class WatermarkApp:
             "Centre-right",
             "Custom",
         ]
-        self.place_dropbox = ttk.Combobox(root, values=options)
-        self.place_dropbox.set("Choose placement")
+        self.place_var = StringVar()
+        self.place_var.set("Choose placement")
+        self.place_dropbox = ttk.Combobox(root, textvariable= self.place_var, values=options)
+        
         self.place_label.grid(row=3, column=1, pady=10, sticky="nsew")
         self.place_dropbox.grid(row=3, column=2, padx=10)
+
+        self.place_var.trace_add("write", self.update_place_dropbox_spinboxes)
+        
+
 
         # delta x configuration
         self.delta_x_label = ttk.Label(
             root, text="Delta X (px)", background=BACKGROUND_COLOUR
         )
         self.delta_x_spinbox = ttk.Spinbox(
-            root, from_=0, to=10, background=BACKGROUND_COLOUR
+            root, from_=0, to=100, background=BACKGROUND_COLOUR, state="disabled"
         )
         self.delta_x_label.grid(row=4, column=1, pady=10, sticky="nsew")
         self.delta_x_spinbox.grid(row=4, column=2, padx=10)
@@ -100,7 +106,7 @@ class WatermarkApp:
             root, text="Delta Y (px)", background=BACKGROUND_COLOUR
         )
         self.delta_y_spinbox = ttk.Spinbox(
-            root, from_=0, to=10, background=BACKGROUND_COLOUR
+            root, from_=0, to=100, background=BACKGROUND_COLOUR, state="disabled"
         )
         self.delta_y_label.grid(row=5, column=1, pady=10, sticky="nsew")
         self.delta_y_spinbox.grid(row=5, column=2, padx=10)
@@ -259,15 +265,17 @@ class WatermarkApp:
             "Bottom-left": (int(img_width * 0.3), int(img_height * 0.92)),
             "Top-left": (int(img_width * 0.1), int(img_height * 0.1)),
             "Top-right": (int(img_width * 0.9), int(img_height * 0.1)),
-            "Centre": (int(img_width * 0.29), int(img_height * 0.5)),
+            "Centre": (int(img_width * 0.31), int(img_height * 0.5)),
             "Centre-left": (int(img_width * 0.1), int(img_height * 0.5)),
             "Centre-right": (int(img_width * 0.9), int(img_height * 0.5)),
         }
+
         if position in coordinates:
             text_position = coordinates[position] #  (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
         else:
-            pass
-            # text_position = (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
+            xcor = int(self.delta_x_spinbox.get()) / 100
+            ycor = int(self.delta_y_spinbox.get()) / 100
+            text_position = (int(img_width * xcor), int(img_height * ycor))  # e.g., 10% from the left, 90% from the top
         
         edited_image.text(text_position, text, fill="blue", font=text_font)
 
@@ -279,7 +287,7 @@ class WatermarkApp:
         self.display_temp_image(self.temp_image_path)
 
         self.text_box.delete(0, END)
-        self.text_box.insert(0, "Generating watermark...")
+        # self.text_box.insert(0, "Generating watermark...")
 
     def display_temp_image(self, file_path):
         img = Image.open(file_path)
@@ -308,8 +316,15 @@ class WatermarkApp:
             os.remove(self.temp_image_path)
         self.temp_image_path = None
 
-    def update_placement_spinboxes(self, *args):
-        pass
+    def update_place_dropbox_spinboxes(self, *args):
+        selected_position = self.place_dropbox.get()
+        if selected_position == "Custom":
+            self.delta_x_spinbox.configure(state="normal")
+            self.delta_y_spinbox.configure(state="normal")
+        else:
+            self.delta_x_spinbox.configure(state="disabled")
+            self.delta_y_spinbox.configure(state="disabled")
+
 
     def save_image(self):
         if self.temp_image_path:
