@@ -93,22 +93,24 @@ class WatermarkApp:
 
         # delta x configuration
         self.delta_x_label = ttk.Label(
-            root, text="Delta X (px)", background=BACKGROUND_COLOUR
+            root, text="Delta X (pixels)", background=BACKGROUND_COLOUR
         )
         self.delta_x_spinbox = ttk.Spinbox(
-            root, from_=0, to=100, background=BACKGROUND_COLOUR, state="disabled"
+            root, from_=1, to=100, background=BACKGROUND_COLOUR, state="disabled"
         )
         self.delta_x_label.grid(row=4, column=1, pady=10, sticky="nsew")
+        self.delta_x_spinbox.set("1")
         self.delta_x_spinbox.grid(row=4, column=2, padx=10)
 
         # delta y configuration
         self.delta_y_label = ttk.Label(
-            root, text="Delta Y (px)", background=BACKGROUND_COLOUR
+            root, text="Delta Y (pixels)", background=BACKGROUND_COLOUR
         )
         self.delta_y_spinbox = ttk.Spinbox(
-            root, from_=0, to=100, background=BACKGROUND_COLOUR, state="disabled"
+            root, from_=1, to=100, background=BACKGROUND_COLOUR, state="disabled"
         )
         self.delta_y_label.grid(row=5, column=1, pady=10, sticky="nsew")
+        self.delta_y_spinbox.set("1")
         self.delta_y_spinbox.grid(row=5, column=2, padx=10)
 
         # rotation configuration
@@ -137,32 +139,12 @@ class WatermarkApp:
             root, text="Type", background=BACKGROUND_COLOUR
         )
         fonts = [
-            "Arial",
-            "Helvetica",
-            "Times New Roman",
-            "Courier New",
-            "Verdana",
-            "Tahoma",
-            "Georgia",
-            "Palatino",
-            "Garamond",
-            "Bookman",
-            "Comic Sans MS",
-            "Trebuchet MS",
-            "Impact",
-            "Lucida Sans",
-            "Monaco",
-            "Consolas",
-            "Calibri",
-            "Cambria",
-            "Candara",
-            "Optima",
-            "Century Gothic",
-            "Franklin Gothic",
-            "Gill Sans",
-            "Futura",
-            "Baskerville",
-        ]
+                    "Arial", "Helvetica", "Times New Roman", "Courier New", "Verdana", "Tahoma", 
+                    "Georgia", "Palatino", "Garamond", "Bookman", "Comic Sans MS", "Trebuchet MS", 
+                    "Impact", "Lucida Sans", "Monaco", "Consolas", "Calibri", "Cambria", "Candara", 
+                    "Optima", "Century Gothic", "Franklin Gothic", "Gill Sans", "Futura", "Baskerville"
+                ]
+
         self.font_dropbox = ttk.Combobox(root, values=fonts)
         self.font_dropbox.set("Choose font")
         self.font_type_label.grid(row=8, column=1, pady=10, sticky="nsew")
@@ -170,20 +152,28 @@ class WatermarkApp:
 
         # font colour configuartion
         self.font_colour_label = ttk.Label(
-            root, text="Type", background=BACKGROUND_COLOUR
+            root, text="Colour", background=BACKGROUND_COLOUR
         )
         colours = [
-            "Red",
-            "Green",
-            "Blue",
-            "Yellow",
-            "Purple",
-            "Orange",
-            "Cyan",
-            "Magenta",
-            "White",
-            "Black",
-        ]
+                    "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black", 
+                    "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", 
+                    "Chocolate", "Coral", "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", 
+                    "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGreen", "DarkKhaki", "DarkMagenta", 
+                    "DarkOliveGreen", "DarkOrange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", 
+                    "DarkSlateBlue", "DarkSlateGray", "DarkTurquoise", "DarkViolet", "DeepPink", 
+                    "DeepSkyBlue", "DimGray", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen", 
+                    "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Green", "GreenYellow", 
+                    "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LavenderBlush", 
+                    "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", 
+                    "LightGray", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", 
+                    "LightSlateGray", "LightSteelBlue", "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", 
+                    "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", 
+                    "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", 
+                    "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin", "NavajoWhite", 
+                    "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid"
+                ]
+
+        
         self.font_colour_dropbox = ttk.Combobox(root, values=colours)
         self.font_colour_dropbox.set("Choose colour")
         self.font_colour_label.grid(row=9, column=1, pady=10, sticky="nsew")
@@ -239,7 +229,34 @@ class WatermarkApp:
     def add_text(self):
         if not self.final_image:
             print("No image loaded.")
+            messagebox.showerror(
+                    "No image loaded", "Please upload an image before adding a watermark"
+                )
             return
+        
+        if self.place_dropbox.get() == "Choose placement":
+            messagebox.showerror(
+                    "No position chosen", "Please choose a placement option"
+                )
+            return 
+
+        if self.font_dropbox.get() == "Choose font":
+            messagebox.showerror(
+                    "No font chosen", "Please choose a font"
+                )
+            return 
+        
+        if self.font_colour_dropbox.get() == "Choose colour":
+            messagebox.showerror(
+                    "No font colour chosen", "Please choose a font colour"
+                )
+            return 
+        
+        if self.text_box.get() == "":
+            messagebox.showerror(
+                    "No watermark", "Please type in a watermark"
+                )
+            return 
 
         image = self.final_image.copy()
         img_width, img_height = image.size
@@ -253,6 +270,9 @@ class WatermarkApp:
             text_font = ImageFont.truetype(font_path, text_size)
         except OSError:
             print(f"Font file {font_path} not found.")
+            messagebox.showwarning(
+                    "Font doesn't exist", f"Font file {self.font_dropbox.get()} not found\n Try a different font."
+                )
             return
 
         text = self.text_box.get()
@@ -277,7 +297,7 @@ class WatermarkApp:
             ycor = int(self.delta_y_spinbox.get()) / 100
             text_position = (int(img_width * xcor), int(img_height * ycor))  # e.g., 10% from the left, 90% from the top
         
-        edited_image.text(text_position, text, fill="blue", font=text_font)
+        edited_image.text(text_position, text, fill=self.font_colour_dropbox.get(), font=text_font)
 
         # Save the watermarked image temporarily
         self.temp_image_path = os.path.join(os.getcwd(), "temp_image.png")
@@ -286,7 +306,7 @@ class WatermarkApp:
         # Display the updated image on the canvas
         self.display_temp_image(self.temp_image_path)
 
-        self.text_box.delete(0, END)
+        # self.text_box.delete(0, END)
         # self.text_box.insert(0, "Generating watermark...")
 
     def display_temp_image(self, file_path):
