@@ -348,6 +348,7 @@ class WatermarkApp:
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
     def add_text(self):
+        # catch errors when adding watermark
         if not self.final_image:
             print("No image loaded.")
             messagebox.showerror(
@@ -381,20 +382,20 @@ class WatermarkApp:
 
         try:
             # Calculate text size as a percentage of the image height
-            text_size = int(img_height * 0.05)  # e.g., 5% of the image height
+            text_size = int(img_height * 0.05)
             text_font = ImageFont.truetype(font_path, text_size)
         except OSError:
             print(f"Font file {font_path} not found.")
             messagebox.showwarning(
                 "Font doesn't exist",
-                f"Font file {self.font_dropbox.get()} not found\n Try a different font.",
+                f"Font file {self.font_dropbox.get()} not found\nTry a different font.",
             )
             return
 
         text = self.text_box.get()
         edited_image = ImageDraw.Draw(image)
 
-        # Calculate position based on the image size
+        # Calculating position based on the image size
         position = self.place_dropbox.get()
         coordinates = {
             "Bottom-right": (int(img_width * 0.7), int(img_height * 0.92)),
@@ -407,16 +408,14 @@ class WatermarkApp:
         }
 
         if position in coordinates:
-            text_position = coordinates[
-                position
-            ]  #  (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
+            text_position = coordinates[position]
         else:
             xcor = int(self.delta_x_spinbox.get()) / 100
             ycor = int(self.delta_y_spinbox.get()) / 100
             text_position = (
                 int(img_width * xcor),
                 int(img_height * ycor),
-            )  # e.g., 10% from the left, 90% from the top
+            )
 
         edited_image.text(
             text_position, text, fill=self.font_colour_dropbox.get(), font=text_font
