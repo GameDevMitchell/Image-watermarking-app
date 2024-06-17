@@ -30,14 +30,14 @@ class WatermarkApp:
 
         self.frame = Frame(root, width=800, height=800, bg=BACKGROUND_COLOUR)
         self.frame.grid(
-            row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=9, columnspan=1
+            row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=9, columnspan=2
         )
 
         frame = Frame(root)
         frame.grid(padx=20, pady=20)
 
         self.canvas = Canvas(self.frame, bg="white")
-        self.canvas.grid(row=0, column=0, sticky="nsew", rowspan=9, columnspan=1)
+        self.canvas.grid(row=0, column=0, sticky="nsew", rowspan=9, columnspan=2)
 
         # Buttons
         # upload image button
@@ -48,7 +48,7 @@ class WatermarkApp:
 
         # save image button
         self.save_button = ttk.Button(root, text="Save Image", command=self.save_image)
-        self.save_button.grid(row=9, column=1)
+        self.save_button.grid(row=9, column=1, sticky="e", padx=(0, 110))
 
         # add text button
         self.add_text_button = ttk.Button(
