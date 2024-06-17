@@ -41,8 +41,7 @@ This Python application allows users to add text watermarks to images. It provid
   A confirmation message will then display, indicating that the image has been successfully saved. Then the new image pops up.
 
   ![preview3](https://github.com/GameDevMitchell/Image-watermarking-app/assets/146736445/167f4f42-3301-4d2d-a434-18153146b656)
-
-
+  <br><br><br><br>
 
   ![preview4](https://github.com/GameDevMitchell/Image-watermarking-app/assets/146736445/d8c8c0e6-4764-4ae6-b839-25313a43580c)
 
@@ -58,8 +57,8 @@ This Python application allows users to add text watermarks to images. It provid
 
 Contributions are welcome! Please fork the repository and create a pull request with your improvements.
 
-## License
+<!-- ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details. -->
 
    
