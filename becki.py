@@ -5,6 +5,7 @@ from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 BACKGROUND_COLOUR = "#EADBC8"
 
+
 class WatermarkApp:
     def __init__(self, root):
         self.root = root
@@ -26,7 +27,9 @@ class WatermarkApp:
         )
         self.upload_button.grid(row=9, column=0, pady=10)
 
-        self.add_text_button = ttk.Button(root, text="Add watermark", command=self.add_text)
+        self.add_text_button = ttk.Button(
+            root, text="Add watermark", command=self.add_text
+        )
         self.add_text_button.grid(row=11, column=1, pady=20, sticky="w")
 
         self.reset_button = ttk.Button(root, text="Reset", command=self.reset)
@@ -165,7 +168,11 @@ class WatermarkApp:
         edited_image = ImageDraw.Draw(image)
 
         # Calculate position based on the image size
-        text_position = (int(img_width * 0.9), int(img_height * 0.05))  # e.g., 10% from the left, 90% from the top
+        position = None
+        text_position = (
+            int(img_width * 0.1),
+            int(img_height * 0.9),
+        )  # e.g., 10% from the left, 90% from the top
         edited_image.text(text_position, text, fill="blue", font=text_font)
 
         # Save the watermarked image temporarily
@@ -209,18 +216,23 @@ class WatermarkApp:
         if self.temp_image_path:
             save_path = filedialog.asksaveasfilename(
                 defaultextension=".png",
-                filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+                filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
             )
             if save_path:
                 shutil.copyfile(self.temp_image_path, save_path)
                 os.remove(self.temp_image_path)  # Remove temp image after saving
-                messagebox.showinfo("Image Saved", f"The image has been saved at:\n{save_path}")
+                messagebox.showinfo(
+                    "Image Saved", f"The image has been saved at:\n{save_path}"
+                )
                 os.startfile(save_path)
         else:
-            messagebox.showwarning("No Watermark", "Please add a watermark before saving the image.")
+            messagebox.showwarning(
+                "No Watermark", "Please add a watermark before saving the image."
+            )
 
     def run(self):
         self.root.mainloop()
+
 
 if __name__ == "__main__":
     root = Tk()

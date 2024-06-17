@@ -1,68 +1,341 @@
-from tkinter import *
+import os
+import shutil
+from tkinter import Tk, Canvas, Frame, filedialog, ttk, END, messagebox, CENTER, ALL
+from PIL import Image, ImageTk, ImageDraw, ImageFont
 
-from tkinter import ttk
-
-# root = Tk()
-# frm = ttk.Frame(root, padding=10)
-# frm.grid()
-# ttk.Label(frm, text="Hello World!").grid(column=0, row=0)
-# ttk.Button(frm, text="Quit", command=root.destroy).grid(column=1, row=0)
-# root.mainloop()
-
-from PIL import Image, ImageFont, ImageDraw, ImageTk
 
 # colour schemes
 BACKGROUND_COLOUR = "#EADBC8"
-BUTTON_COLOUR = "#F94892"
-CROSS_COLOUR = "#10439F"
-CIRCLE_COLOUR = "#F94A29"
-NUMERICAL_COLOUR = "#211C6A"
 
 
-app = Tk()
-app.title("Tic-tac-toe")
-# app.geometry("900x600")
-app.config(padx=30, pady=20, bg=BACKGROUND_COLOUR)
+class WatermarkApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Watermarking App")
+        self.final_image = None
+        self.temp_image_path = None
+
+        self.frame = Frame(root, width=800, height=800, bg=BACKGROUND_COLOUR)
+        self.frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew", rowspan=9)
+
+        frame = Frame(root)
+        frame.grid(padx=20, pady=20)
+
+        self.canvas = Canvas(self.frame, bg="white")
+        self.canvas.grid(row=0, column=0, sticky="nsew", rowspan=9)
+
+        # Buttons
+        # upload image button
+        self.upload_button = ttk.Button(
+            root, text="Upload Image", command=self.upload_image
+        )
+        self.upload_button.grid(row=9, column=0, pady=10)
+
+        # add text button
+        self.add_text_button = ttk.Button(
+            root, text="Add watermark", command=self.add_text
+        )
+        self.add_text_button.grid(row=11, column=1, pady=20, sticky="w")
+
+        # Reset button
+        self.reset_button = ttk.Button(root, text="Reset", command=self.reset)
+        self.reset_button.grid(row=11, column=2, pady=20, padx=(0, 30), sticky="e")
+
+        # text label
+        self.text_label = ttk.Label(
+            root,
+            text="Text",
+            background=BACKGROUND_COLOUR,
+            font=("calibri", 18, "underline"),
+        )
+        self.text_label.grid(row=0, column=1, sticky="nsew", pady=(20, 10))
+
+        # watermark enrty box
+        self.text_box = ttk.Entry(root, font=("calibri", 10), width=33)
+        self.text_box.grid(row=1, column=1, columnspan=2, sticky="w")
+
+        # Placement section
+        # Placement label
+        self.placement_label = ttk.Label(
+            root,
+            text="Placement",
+            background=BACKGROUND_COLOUR,
+            font=("calibri", 18, "underline"),
+        )
+        self.placement_label.grid(row=2, column=1, sticky="nsew", pady=(20, 10))
+
+        # placement configuration
+        self.place_label = ttk.Label(
+            root,
+            text="Placement",
+            background=BACKGROUND_COLOUR,
+        )
+        options = [
+            "Bottom-right",
+            "Bottom-left",
+            "Top-left",
+            "Top-right",
+            "Centre",
+            "Centre-left",
+            "Centre-right",
+            "Custom",
+        ]
+        self.place_dropbox = ttk.Combobox(root, values=options)
+        self.place_dropbox.set("Choose placement")
+        self.place_label.grid(row=3, column=1, pady=10, sticky="nsew")
+        self.place_dropbox.grid(row=3, column=2, padx=10)
+
+        # delta x configuration
+        self.delta_x_label = ttk.Label(
+            root, text="Delta X (px)", background=BACKGROUND_COLOUR
+        )
+        self.delta_x_spinbox = ttk.Spinbox(
+            root, from_=0, to=10, background=BACKGROUND_COLOUR
+        )
+        self.delta_x_label.grid(row=4, column=1, pady=10, sticky="nsew")
+        self.delta_x_spinbox.grid(row=4, column=2, padx=10)
+
+        # delta y configuration
+        self.delta_y_label = ttk.Label(
+            root, text="Delta Y (px)", background=BACKGROUND_COLOUR
+        )
+        self.delta_y_spinbox = ttk.Spinbox(
+            root, from_=0, to=10, background=BACKGROUND_COLOUR
+        )
+        self.delta_y_label.grid(row=5, column=1, pady=10, sticky="nsew")
+        self.delta_y_spinbox.grid(row=5, column=2, padx=10)
+
+        # rotation configuration
+        self.rotation_label = ttk.Label(
+            root, text="Rotation (°)", background=BACKGROUND_COLOUR
+        )
+        self.rotation_spinbox = ttk.Spinbox(
+            root, from_=0, to=360, background=BACKGROUND_COLOUR
+        )
+        self.rotation_spinbox.set("0")
+        self.rotation_label.grid(row=6, column=1, pady=10, sticky="nsew")
+        self.rotation_spinbox.grid(row=6, column=2, padx=10)
+
+        # font section
+        # font label
+        self.font_label = ttk.Label(
+            root,
+            text="Font",
+            background=BACKGROUND_COLOUR,
+            font=("calibri", 18, "underline"),
+        )
+        self.font_label.grid(row=7, column=1, pady=10, sticky="nsew")
+
+        # font type configuration
+        self.font_type_label = ttk.Label(
+            root, text="Type", background=BACKGROUND_COLOUR
+        )
+        fonts = [
+            "Arial",
+            "Helvetica",
+            "Times New Roman",
+            "Courier New",
+            "Verdana",
+            "Tahoma",
+            "Georgia",
+            "Palatino",
+            "Garamond",
+            "Bookman",
+            "Comic Sans MS",
+            "Trebuchet MS",
+            "Impact",
+            "Lucida Sans",
+            "Monaco",
+            "Consolas",
+            "Calibri",
+            "Cambria",
+            "Candara",
+            "Optima",
+            "Century Gothic",
+            "Franklin Gothic",
+            "Gill Sans",
+            "Futura",
+            "Baskerville",
+        ]
+        self.font_dropbox = ttk.Combobox(root, values=fonts)
+        self.font_dropbox.set("Choose font")
+        self.font_type_label.grid(row=8, column=1, pady=10, sticky="nsew")
+        self.font_dropbox.grid(row=8, column=2, padx=10)
+
+        # font colour configuartion
+        self.font_colour_label = ttk.Label(
+            root, text="Type", background=BACKGROUND_COLOUR
+        )
+        colours = [
+            "Red",
+            "Green",
+            "Blue",
+            "Yellow",
+            "Purple",
+            "Orange",
+            "Cyan",
+            "Magenta",
+            "White",
+            "Black",
+        ]
+        self.font_colour_dropbox = ttk.Combobox(root, values=colours)
+        self.font_colour_dropbox.set("Choose colour")
+        self.font_colour_label.grid(row=9, column=1, pady=10, sticky="nsew")
+        self.font_colour_dropbox.grid(row=9, column=2, padx=10)
+
+        # transparency configuration
+        self.transparency_label = ttk.Label(
+            root, text="Transparency", background=BACKGROUND_COLOUR
+        )
+        self.transparency_spinbox = ttk.Spinbox(
+            root, from_=0, to=100, background=BACKGROUND_COLOUR
+        )
+        self.transparency_spinbox.set("50")
+        self.transparency_label.grid(row=10, column=1, pady=10, sticky="nsew")
+        self.transparency_spinbox.grid(row=10, column=2, padx=10)
+
+        self.image_on_canvas = None
+
+        # Configure grid weights to ensure the canvas expands properly
+        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+
+    def upload_image(self):
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Image files", "*.jpg *.jpeg *.png *.bmp *.gif")]
+        )
+        if file_path:
+            self.display_image(file_path)
+
+    def display_image(self, file_path):
+        img = Image.open(file_path)
+        self.final_image = img
+        img_width, img_height = img.size
+
+        frame_width = self.frame.winfo_width()
+        frame_height = self.frame.winfo_height()
+        ratio = min(frame_width / img_width, frame_height / img_height)
+        new_width = int(img_width * ratio)
+        new_height = int(img_height * ratio)
+
+        resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+        self.image_tk = ImageTk.PhotoImage(resized_img)
+
+        self.canvas.delete("all")
+        self.image_on_canvas = self.canvas.create_image(
+            frame_width // 2, frame_height // 2, anchor="center", image=self.image_tk
+        )
+
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+    def add_text(self):
+        if not self.final_image:
+            print("No image loaded.")
+            return
+
+        image = self.final_image.copy()
+        img_width, img_height = image.size
+
+        font_name = self.font_dropbox.get().lower() + ".ttf"
+        font_path = os.path.join("fonts", font_name)
+
+        try:
+            # Calculate text size as a percentage of the image height
+            text_size = int(img_height * 0.05)  # e.g., 5% of the image height
+            text_font = ImageFont.truetype(font_path, text_size)
+        except OSError:
+            print(f"Font file {font_path} not found.")
+            return
+
+        text = self.text_box.get()
+        edited_image = ImageDraw.Draw(image)
+
+        # Calculate position based on the image size
+        position = self.place_dropbox.get()
+        coordinates = {
+            "Bottom-right": (int(img_width * 0.7), int(img_height * 0.92)),
+            "Bottom-left": (int(img_width * 0.3), int(img_height * 0.92)),
+            "Top-left": (int(img_width * 0.1), int(img_height * 0.1)),
+            "Top-right": (int(img_width * 0.9), int(img_height * 0.1)),
+            "Centre": (int(img_width * 0.29), int(img_height * 0.5)),
+            "Centre-left": (int(img_width * 0.1), int(img_height * 0.5)),
+            "Centre-right": (int(img_width * 0.9), int(img_height * 0.5)),
+        }
+        if position in coordinates:
+            text_position = coordinates[position] #  (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
+        else:
+            pass
+            # text_position = (int(img_width * 0.1), int(img_height * 0.9))  # e.g., 10% from the left, 90% from the top
+        
+        edited_image.text(text_position, text, fill="blue", font=text_font)
+
+        # Save the watermarked image temporarily
+        self.temp_image_path = os.path.join(os.getcwd(), "temp_image.png")
+        image.save(self.temp_image_path)
+
+        # Display the updated image on the canvas
+        self.display_temp_image(self.temp_image_path)
+
+        self.text_box.delete(0, END)
+        self.text_box.insert(0, "Generating watermark...")
+
+    def display_temp_image(self, file_path):
+        img = Image.open(file_path)
+        img_width, img_height = img.size
+
+        frame_width = self.frame.winfo_width()
+        frame_height = self.frame.winfo_height()
+        ratio = min(frame_width / img_width, frame_height / img_height)
+        new_width = int(img_width * ratio)
+        new_height = int(img_height * ratio)
+
+        resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+        self.image_tk = ImageTk.PhotoImage(resized_img)
+
+        self.canvas.delete("all")
+        self.image_on_canvas = self.canvas.create_image(
+            frame_width // 2, frame_height // 2, anchor="center", image=self.image_tk
+        )
+
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+    def reset(self):
+        self.canvas.delete("all")
+        self.final_image = None
+        if self.temp_image_path and os.path.exists(self.temp_image_path):
+            os.remove(self.temp_image_path)
+        self.temp_image_path = None
+
+    def update_placement_spinboxes(self, *args):
+        pass
+
+    def save_image(self):
+        if self.temp_image_path:
+            save_path = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
+            )
+            if save_path:
+                shutil.copyfile(self.temp_image_path, save_path)
+                os.remove(self.temp_image_path)  # Remove temp image after saving
+                messagebox.showinfo(
+                    "Image Saved", f"The image has been saved at:\n{save_path}"
+                )
+                os.startfile(save_path)
+        else:
+            messagebox.showwarning(
+                "No Watermark", "Please add a watermark before saving the image."
+            )
+
+    def run(self):
+        self.root.mainloop()
 
 
-# image1 = Image.open("image1.jpg")
-image0 = PhotoImage("image1.jpg")
-# photo = ImageTk.PhotoImage(image0)
-label = ttk.Label(app, image=image0)
-label.grid(row=1, column=2)
-# image1.save("image1.jpeg")
-
-
-# text box
-text_box = Entry(app, font=("calibri", 30))
-text_box.grid(row=2, column=2)
-
-# add text
-add_text_button = ttk.Button(app, text="Add text to image", command=None)
-add_text_button.grid(row=3, column=3)
-# board image
-# board = PhotoImage(file="images/colourful_grid.png")
-# image_width = board.width()
-# image_height = board.height()
-
-# canvas setup
-# max_width = 430
-# max_height = 430
-# scale = min(max_width / image_width, max_height / image_height)
-# image_width = int(image_width * scale)
-# image_height = int(image_height * scale)
-# board_resized = board.subsample(round(1 / scale), round(1 / scale))
-
-# default canvas
-# display_canvas = Canvas(
-#     app, width=max_width, height=max_height, bg=BACKGROUND_COLOUR, highlightthickness=0
-# )
-# display_canvas.create_image(max_width / 2, max_height / 2, image=board_resized)
-
-
-# play button
-# play_image = PhotoImage(file="images/black_play.png")
-# play_button = Button(bg=BUTTON_COLOUR, image=play_image, highlightthickness=0)
-# play_button.grid(row=2, column=1)
-
-app.mainloop()
+root = Tk()
+root.config(bg=BACKGROUND_COLOUR)
+root.geometry("900x600")
+root.resizable(True, True)
+app = WatermarkApp(root)
+app.run()

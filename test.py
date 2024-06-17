@@ -66,7 +66,7 @@ class WatermarkApp:
             text="Placement",
             background=BACKGROUND_COLOUR,
         )
-        options = ["Bottom-right", "Bottom-left", "Top-left", "Top-right", "Centre"]
+        options = ["Bottom-right", "Bottom-left", "Top-left", "Top-right", "Centre", "Custom"]
         self.place_dropbox = ttk.Combobox(root, values=options)
         self.place_dropbox.set("Choose placement")
         self.place_label.grid(row=3, column=1, pady=10, sticky="nsew")
