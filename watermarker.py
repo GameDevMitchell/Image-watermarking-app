@@ -490,7 +490,7 @@ class WatermarkApp:
             )
             if save_path:
                 shutil.copyfile(self.temp_image_path, save_path)
-                os.remove(self.temp_image_path)  # Remove temporary image after saving
+                os.remove(self.temp_image_path)  # Removes temporary image after saving
                 messagebox.showinfo(
                     "Image Saved", f"The image has been saved at:\n{save_path}"
                 )
